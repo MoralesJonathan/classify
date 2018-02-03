@@ -1,0 +1,13 @@
+{
+  "name": "Classify",
+  "version": "0.0.1",
+  "description": "TODO",
+  "main": "server.js",
+  "repository": "",
+  "author": "Various",
+  "dependencies": {
+    "async": "~0.2.8",
+    "express": "^4.16.2",
+    "socket.io": "^2.0.4"
+  }
+}
