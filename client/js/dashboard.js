@@ -5,12 +5,17 @@ var navbar_initialized = false;
 $(document).ready(function() {
     var dps = [];
     var chart = new CanvasJS.Chart("chartContainer", {
-        exportEnabled: true,
+        exportEnabled: false,
         title: {
-            text: "Class Emotions"
+            text: "Class Emotions",
+            fontFamily: "arial",
+            fontWeight: "lighter",
+            fontSize: 30,
+            padding: 15
         },
         axisY: {
-            includeZero: false
+            includeZero: false,
+            gridColor: "#c9c9c9"
         },
         data: [{
             type: "spline",

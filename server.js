@@ -1,17 +1,27 @@
 const express = require('express')
 const app = express();
-const http = require('http')
+const http = require('http');
+fs=require('fs');
 const server = http.createServer(app)
 const port = 8080;
 const environment = app.get('env');
 const async = require('async');
 const socketio = require('socket.io');
+const api = require('./routes/apiRoutes');
+const bodyParser = require('body-parser')
 
 const io = socketio.listen(server);
 
 app.use(express.static('client'))
+
+app.use(bodyParser.urlencoded({ extended: true , limit: '50mb'}));
+app.use(bodyParser.json());
+
+
 const messages = [];
 const sockets = [];
+
+api(app);
 
 io.on('connection', function (socket) {
     messages.forEach(function (data) {
