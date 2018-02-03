@@ -1,6 +1,5 @@
 module.exports = function(app){
     app.post('/api/image', function(req, res) {
-        console.log(req.body)
         let imagedata = req.body.data.split(',')[1];
         fs.writeFile('./client/img/test.png', imagedata, 'base64', function(err) {
             if (err) {
