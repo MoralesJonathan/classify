@@ -60,9 +60,11 @@ $(document).ready(function() {
             $('#error').html("Unknown room. Please try again.")
         }
     });
-
     socket.on('notifcation', function(data) {
         sendNotif(data.message)
+    });
+    socket.on('transcription', function(data) {
+        $('#transcript').append(data)
     });
 
     $("#logout").click(function() {

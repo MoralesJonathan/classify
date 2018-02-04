@@ -2,8 +2,25 @@ var fixedTop = false;
 var transparent = true;
 var navbar_initialized = false;
 var xVal = 0;
+var id;
 $(document).ready(function() {
     const socket = io.connect();
+    if (annyang) {
+        var commands = {
+            'stop lecture': function(){
+                annyang.pause();
+            },
+            '(start lecture) *words': function(words) { 
+                console.log(words)
+                socket.emit('pretranscription', words);
+            }
+        };
+        annyang.addCommands(commands);
+
+    }
+    $('#startLecture').click(function() {
+        annyang.start();
+    })
     socket.on('connect', () => {
         id = socket.id;
         $('#socketID').html(id)
@@ -20,6 +37,9 @@ $(document).ready(function() {
         }
         chart.render();
     });
+    socket.on('updateAttendance', function(data) {
+        $('#curAttendance').html(data)
+    })
     updateTimes()
     var dps = [];
     var chart = new CanvasJS.Chart("chartContainer", {
@@ -41,31 +61,6 @@ $(document).ready(function() {
             dataPoints: dps
         }]
     });
-
-    // var xVal = 0;
-    // var yVal = 0;
-    // var updateInterval = 5000;
-    // var dataLength = 15
-
-    // var updateChart = function(count) {
-    //     count = count || 1;
-    //     // count is number of times loop runs to generate random dataPoints.
-    //     for (var j = 0; j < count; j++) {
-    //         yVal = Math.random() < 0.5 ? -1 : 1;
-    //         dps.push({
-    //             x: xVal,
-    //             y: yVal
-    //         });
-    //         xVal++;
-    //     }
-    //     if (dps.length > dataLength) {
-    //         dps.shift();
-    //     }
-    //     chart.render();
-    // };
-
-    // updateChart(dataLength);
-    // setInterval(function() { updateChart() }, updateInterval);
 
     window_width = $(window).width();
 
@@ -217,7 +212,7 @@ function updateTimes() {
     var currentTime = hour * 60 + min;
     intervalID;
     var intervalID = setInterval(function() {
-        if (currentTime == end) {
+        if (currentTime != end) {
             console.log(currentTime)
             console.log('at set interval ')
             var secsLeft = end - currentTime
@@ -225,7 +220,7 @@ function updateTimes() {
             destHour = Math.floor(end / 60)
             destMin = end - destHour * 60
             $('#countDown').html(destHour + ":" + destMin)
-            $('#countUp').html(secsElapsed) ///convert to h:mm:ss
+            // $('#countUp').html(secsElapsed) ///convert to h:mm:ss
             currentTime++
         }
         else {

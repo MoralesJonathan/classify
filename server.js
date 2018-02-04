@@ -67,14 +67,26 @@ io.on('connection', function(socket) {
       socket.leave(socket.id);
       socket.emit('roomJoinStatus', { data: true });
       socket.emit('notifcation', { message: "Logged in!" });
+      socket.to(room).emit('updateAttendance',io.sockets.adapter.rooms[room].length-1);
     } else {
       socket.emit('roomJoinStatus', { data: false });
     }
     })
+    socket.on('pretranscription',function(words){
+     socket.to(socket.id).emit('transcription', words);
+  })
   socket.on('logout',function(room){
     socket.leave(room)
   })
-  socket.on('disconnect', function() {});
+  socket.on('disconnect', function() {
+    if(rooms.indexOf(socket.id) != -1){
+      let index = rooms.indexOf(socket.id)
+      let professorID = rooms[index]
+      rooms.splice(rooms[index], 1)
+      console.log("Is this professor ID? "+professorID)
+      // socket.to(professorID).emit('updateAttendance',io.sockets.adapter.rooms[professorID].length-1);
+    }
+  });
   });
 
 
