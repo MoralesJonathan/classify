@@ -4,11 +4,12 @@ MongoStore = require('connect-mongo')(session);
 const express = require('express')
 const async = require('async');
 const socketio = require('socket.io');
-const request = require('request');
+request = require('request');
 const bodyParser = require('body-parser')
 const exphbs = require('express-handlebars');
 // built in node modules
 const http = require('http');
+const googleTranslate = require('google-translate')("AIzaSyDqCizItnUBt7FbE_6-rHbu89PUggOJaZM");
 fs = require('fs');
 path = require('path')
 //initializations
@@ -118,7 +119,12 @@ server.listen(port, function() {
 })
 
 
+app.get('/test', function (req,res){
+  googleTranslate.translate('My name is Brandon', 'es', function(err, translation) {
+  res.send(translation.translatedText);
 
+});
+})
 
 function toTitleCase(str) {
   return str.replace(/\w\S*/g, function(txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });

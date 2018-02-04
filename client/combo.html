@@ -43,7 +43,8 @@
 		preview before save.</div>
 
 	<h2>Face Rectangle</h2>
-	<button onclick="updateCam()">Update</button>
+	<button onclick="updateCam()">Show Cam Dev</button>
+	<button id="sender">Send Images</button>
 	<ul id="faceRectangle">
 	<!-- Will populate list with response content -->
 	</ul>
@@ -57,11 +58,37 @@
 		<div id="my_camera"></div>
 
 		<!-- First, include the Webcam.js JavaScript Library -->
-		<script type="text/javascript" src="./js/webcam.js"></script>
 
-		<!-- Configure a few settings and attach camera -->
-		<script language="JavaScript">
-			Webcam.set({
+		<!-- A button for taking snaps -->
+		<form>
+			<div id="pre_take_buttons">
+				<!-- This button is shown before the user takes a snapshot -->
+				<input type=button value="Take Snapshot" onClick="preview_snapshot()">
+			</div>
+			<div id="post_take_buttons" style="display:none">
+				<!-- These buttons are shown after a snapshot is taken -->
+				<input type=button value="&lt; Take Another" onClick="cancel_preview()">
+				<input type=button value="Save Photo &gt;" onClick="save_photo()" style="font-weight:bold;">
+			</div>
+		</form>
+	</div>
+
+	<div id="results" style="display:none">
+		<!-- Your captured image will appear here... -->
+	</div>
+
+<script
+  src="https://code.jquery.com/jquery-3.3.1.js" 
+  integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+  crossorigin="anonymous"></script>
+<script type="text/javascript" src="./js/webcam.js"></script>
+
+<script>
+
+$( document ).ready(function() {
+	
+		function camera(){
+				Webcam.set({
 				// live preview size
 				width: 1,
 				height: 1,
@@ -81,6 +108,10 @@
 			});
 			
 			Webcam.attach('#my_camera');
+		}
+		
+			
+			camera();
 			
 			function updateCam(){
 	    		Webcam.set({
@@ -90,32 +121,6 @@
 				Webcam.attach('#my_camera');
 			}
 			
-		</script>
-
-		<!-- A button for taking snaps -->
-		<form>
-			<div id="pre_take_buttons">
-				<!-- This button is shown before the user takes a snapshot -->
-				<input type=button value="Take Snapshot" onClick="preview_snapshot()">
-			</div>
-			<div id="post_take_buttons" style="display:none">
-				<!-- These buttons are shown after a snapshot is taken -->
-				<input type=button value="&lt; Take Another" onClick="cancel_preview()">
-				<input type=button value="Save Photo &gt;" onClick="save_photo()" style="font-weight:bold;">
-			</div>
-		</form>
-	</div>
-
-	<div id="results" style="display:none">
-		<!-- Your captured image will appear here... -->
-	</div>
-<script
-  src="https://code.jquery.com/jquery-3.3.1.js" 
-  integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
-  crossorigin="anonymous"></script>
-  
-
-<script>
 		function preview_snapshot() {
 			// freeze camera so user can preview current frame
 			Webcam.freeze();
@@ -144,9 +149,12 @@
 					  }, function(response,err){
 					  	if(response){
 					  		console.log("OK!");
-					  		emotionApi('https://mangohacks2018-jjm15c.c9users.io/img/test.png');
+					  	
 					  	}
-					  })
+				
+					  	else{
+					  		console.log(err)
+					  	}	  })
 					  // shut down camera, stop capturing
 				Webcam.reset();
 
@@ -155,11 +163,27 @@
 				document.getElementById('my_photo_booth').style.display = 'none';
 			});
 		}
-	</script>
+		
+		$("#sender").click(function(){
+			myMethod();
+		})
+		
+		
 
-
-
-	<script type="text/javascript">
+		function myMethod()
+		{
+		  setInterval(function(){
+		  preview_snapshot();
+		  save_photo();
+		  cancel_preview();
+		  camera();
+		  console.log("hello");
+		  }, 5000);
+		  
+		}
+		
+		
+		
 		function emotionApi(urlz) {
 			// No query string parameters for this API call.
 			var params = {};
@@ -181,28 +205,8 @@
 				data: `{"url": "${url}"}`,
 			}).done(function (data) {
 				console.log(data);
-				// Get face rectangle dimensions
-				var faceRectangle = data[0].faceRectangle;
-				var faceRectangleList = $('#faceRectangle');
-
-				// Append to DOM
-				for (var prop in faceRectangle) {
-					faceRectangleList.append("<li> " + prop + ": " + faceRectangle[prop] + "</li>");
-				}
-
-				// Get emotion confidence scores
-				var scores = data[0].scores;
-				var scoresList = $('#scores');
-
-				// Append to DOM
-				for (var prop in scores) {
-					scoresList.append("<li> " + prop + ": " + scores[prop] + "</li>")
-				}
-			}).fail(function (err) {
-				alert("Error: " + JSON.stringify(err));
-			});
+				});
 		};
+});
 	</script>
 </body>
-
-</html>

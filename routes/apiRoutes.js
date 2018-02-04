@@ -8,11 +8,31 @@ module.exports = function(app) {
         throw err
         res.send(500)
       }
+      var options = {
+        method: "POST",
+        url: 'https://westus.api.cognitive.microsoft.com/emotion/v1.0/recognize/',
+        headers: {
+          'Content-Type': 'application/json',
+          'Ocp-Apim-Subscription-Key': '5eed168a75df4ff988eb3a529da5f646'
+        },
+        body: '{"url": "https://mangohacks2018-jjm15c.c9users.io/img/test.png"}' 
+        
+      };
       
-    request.post("")
-      //res.send(200)
+    request(options, function(error, response, body){
+      if(!error){
+        console.log(body)
+        res.send(body);
+      }
+      else{
+        console.log(error);
+        res.send(error);
+      }
+    });
     })
   })
+  
+ 
 
   app.post('/api/register', function(req, res) {
     bcrypt.hash(req.body.password, saltRounds, function(err, hash) {

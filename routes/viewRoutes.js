@@ -16,6 +16,10 @@ var appDir = path.dirname(require.main.filename);
         res.sendFile(`${appDir}/client/login.html`);
     });
 
+    app.get('/home2', function(req, res) {
+        res.render("studentDash.handlebars");
+    });
+    
     app.get('/home', function(req, res) {
         let userSession = req.session;
         if (!userSession.user) {
