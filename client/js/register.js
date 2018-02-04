@@ -1,7 +1,7 @@
 $(function() {
     $('form').submit(function(e){
         e.preventDefault();
-        $.post('/register', {
+        $.post('/api/register', {
             username: $("#inputUsername").val(),
             password: $("#inputPassword").val(),
             firstname: $("#inputFname").val(),

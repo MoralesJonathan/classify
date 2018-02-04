@@ -3,6 +3,7 @@ var transparent = true;
 var navbar_initialized = false;
 
 $(document).ready(function() {
+    updateTimes()
     var dps = [];
     var chart = new CanvasJS.Chart("chartContainer", {
         exportEnabled: false,
@@ -187,3 +188,32 @@ function debounce(func, wait, immediate) {
         if (immediate && !timeout) func.apply(context, args);
     };
 };
+
+function updateTimes() {
+    var start = 60; //hardcoded val. pull from backend.
+    var destHour;
+    var destMin;
+    var end = 1090; //hardcoded val. pull from backend.
+    var d = new Date()
+    var hour = d.getHours()
+    var min = d.getMinutes()
+    var currentTime = hour * 60 + min;
+    intervalID;
+    var intervalID = setInterval(function() {
+        if (currentTime == end) {
+            console.log(currentTime)
+            console.log('at set interval ')
+            var secsLeft = end - currentTime
+            var secsElapsed = currentTime - start
+            destHour = Math.floor(end/60)
+            destMin = end - destHour*60 
+            $('#countDown').html(destHour+":"+destMin)
+            $('#countUp').html(secsElapsed) ///convert to h:mm:ss
+            currentTime++
+        }
+        else {
+            return;
+        }
+    }, 60000);
+
+}
