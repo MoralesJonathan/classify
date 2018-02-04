@@ -9,7 +9,6 @@ const bodyParser = require('body-parser')
 const exphbs = require('express-handlebars');
 // built in node modules
 const http = require('http');
-const googleTranslate = require('google-translate')("AIzaSyDqCizItnUBt7FbE_6-rHbu89PUggOJaZM");
 fs = require('fs');
 path = require('path')
 //initializations
@@ -61,11 +60,11 @@ views(app);
 
 io.on('connection', function(socket) {
   rooms.push(socket.id);
-  socket.on('join', (room) => {
+  socket.on('join', (room, studentid, language) => {
     if(rooms.indexOf(room) != -1 && socket.id != room){
       socket.join(room);
       socket.leave(socket.id);
-      socket.emit('roomJoinStatus', { data: true });
+      socket.emit('roomJoinStatus', { data: true, lang: language });
       socket.emit('notifcation', { message: "Logged in!" });
       socket.to(room).emit('updateAttendance',io.sockets.adapter.rooms[room].length-1);
     } else {
@@ -94,13 +93,6 @@ server.listen(port, function() {
   console.log('Server is running! on port ' + port + ' and is running with a ' + environment + ' environment.');
 })
 
-
-app.get('/test', function(req, res) {
-  googleTranslate.translate('My name is Brandon', 'es', function(err, translation) {
-    res.send(translation.translatedText);
-
-  });
-})
 
 function toTitleCase(str) {
   return str.replace(/\w\S*/g, function(txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });

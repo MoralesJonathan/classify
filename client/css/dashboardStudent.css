@@ -1022,6 +1022,11 @@ textarea.form-control {
 .table-striped > tbody > tr > td,
 .table-striped > tfoot > tr > td {
   padding: 15px 8px; }
+.ml9 {
+  position: relative;
+  font-weight: 200;
+  font-size: 4em;
+}
 
 /*      Checkbox and radio         */
 .checkbox,

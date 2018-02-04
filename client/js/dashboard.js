@@ -210,22 +210,30 @@ function updateTimes() {
     var hour = d.getHours()
     var min = d.getMinutes()
     var currentTime = hour * 60 + min;
+    var destHour = Math.floor(end / 60)
+    var destMin = end - destHour * 60
     intervalID;
     var intervalID = setInterval(function() {
         if (currentTime != end) {
             console.log(currentTime)
             console.log('at set interval ')
-            var secsLeft = end - currentTime
-            var secsElapsed = currentTime - start
-            destHour = Math.floor(end / 60)
-            destMin = end - destHour * 60
+            var minsElapsed = currentTime - start
+            if(destMin > 0 ){
+                destMin--
+            } else {
+                destMin = 59
+                destHour--
+            }
             $('#countDown').html(destHour + ":" + destMin)
-            // $('#countUp').html(secsElapsed) ///convert to h:mm:ss
+            if(minsElapsed > 60){
+                var hour = Math.floor(minsElapsed/60)
+                var min  = minsElapsed % 60
+            }
+            $('#countUp').html(hour+":"+min) /
             currentTime++
         }
         else {
             return;
         }
     }, 60000);
-
 }

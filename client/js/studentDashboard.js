@@ -1,6 +1,7 @@
 var fixedTop = false;
 var transparent = true;
 var navbar_initialized = false;
+var users = []
 
 function sendNotif(msg) {
     $.notify({
@@ -53,6 +54,7 @@ $(document).ready(function() {
 
     socket.on('roomJoinStatus', function(auth) {
         if (auth.data) {
+            users.push({ "id": socket.id, "lang": auth.lang })
             $('#myModal').modal('hide')
             startCapture();
         }
@@ -64,7 +66,26 @@ $(document).ready(function() {
         sendNotif(data.message)
     });
     socket.on('transcription', function(data) {
-        $('#transcript').append(data)
+        var found = false;
+        var index;
+        for (var i = 0; i < users.length; i++) {
+            if (users[i].id == socket.id) {
+                found = true;
+                index = i
+                break;
+            }
+        }
+        if (found) {
+            $.post('/api/translate', {
+                lang: users[index].lang,
+                text: data
+            }, function(response, err) {
+                $('#mainText').append(response + ". ");
+            })
+        }
+        else {
+            $('#mainText').append(response + ". ");
+        }
     });
 
     $("#logout").click(function() {
@@ -271,15 +292,20 @@ function updateTimes() {
     var currentTime = hour * 60 + min;
     intervalID;
     var intervalID = setInterval(function() {
-        if (currentTime == end) {
+        if (currentTime != end) {
             console.log(currentTime)
-            console.log('at set interval ')
-            var secsLeft = end - currentTime
-            var secsElapsed = currentTime - start
+            var minsElapsed = currentTime - start
             destHour = Math.floor(end / 60)
             destMin = end - destHour * 60
+            if (destMin > 0) {
+                destMin--
+            }
+            else {
+                destHour--
+                destMin = 59
+            }
             $('#countDown').html(destHour + ":" + destMin)
-            $('#countUp').html(secsElapsed) ///convert to h:mm:ss
+            $('#countUp').html("00:" + minsElapsed)
             currentTime++
         }
         else {

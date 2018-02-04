@@ -1,5 +1,6 @@
 //api routes
 const bcrypt = require('bcrypt');
+const googleTranslate = require('google-translate')("AIzaSyDqCizItnUBt7FbE_6-rHbu89PUggOJaZM");
 module.exports = function(app) {
   app.post('/api/image', function(req, res) {
     let imagedata = req.body.data.split(',')[1];
@@ -15,48 +16,46 @@ module.exports = function(app) {
           'Content-Type': 'application/json',
           'Ocp-Apim-Subscription-Key': '5eed168a75df4ff988eb3a529da5f646'
         },
-        body: '{"url": "https://mangohacks2018-jjm15c.c9users.io/img/test.png"}' 
-        
+        body: '{"url": "https://mangohacks2018-jjm15c.c9users.io/img/test.png"}'
+
       };
-      
-    request(options, function(error, response, body) {
-    if(body != undefined){
-    let data =body;
-    let pull=(JSON.parse(data));
-    let scores=pull[0].scores;
-    
-    let emotions = {
-      "anger": -1,
-      "contempt": 1,
-      "disgust": 1,
-      "fear": 1,
-      "happiness":1,
-      "neutral":0,
-      "sadness":-1,
-      "surprise":1
-    };
-        let finalScore=0;
-        let counter=0;
-        for (var key in scores) {
-          if (scores.hasOwnProperty(key)) {
-              if(scores[key]>.2){
-              let curVal=emotions[key];
-              finalScore+=(curVal*scores[key]);
-              counter++;
+
+      request(options, function(error, response, body) {
+        let pull = (JSON.parse(body));
+        console.log(JSON.stringify(pull) + ' ... ' + pull.length)
+        if (pull.length >= 1) {
+          let scores = pull[0].scores;
+          let emotions = {
+            "anger": -1,
+            "contempt": 1,
+            "disgust": 1,
+            "fear": 1,
+            "happiness": 1,
+            "neutral": 0,
+            "sadness": -1,
+            "surprise": 1
+          };
+          let finalScore = 0;
+          let counter = 0;
+          for (var key in scores) {
+            if (scores.hasOwnProperty(key)) {
+              if (scores[key] > .2) {
+                let curVal = emotions[key];
+                finalScore += (curVal * scores[key]);
+                counter++;
+              }
+            }
           }
-      }
+          io.sockets.emit('graphUpdate', { "value": finalScore })
         }
-        io.sockets.emit('graphUpdate', {"value":finalScore})
-    }
-      else{
-        console.log(error);
-        res.send(error);
-      }
-    });
+        else {
+          io.sockets.emit('graphUpdate', { "value": 0 })
+        }
+      });
     })
   })
-  
- 
+
+
 
   app.post('/api/register', function(req, res) {
     bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
@@ -130,8 +129,11 @@ module.exports = function(app) {
       }
     });
   })
-
-
-
+  
+  app.post('/api/translate', function(req, res) {
+  googleTranslate.translate(req.body.text, req.body.lang, function(err, translation) {
+    res.send(translation.translatedText);
+  });
+})
 
 };
