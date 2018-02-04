@@ -3,8 +3,10 @@ const bcrypt = require('bcrypt');
 const googleTranslate = require('google-translate')("AIzaSyDqCizItnUBt7FbE_6-rHbu89PUggOJaZM");
 module.exports = function(app) {
   app.post('/api/image', function(req, res) {
+    
+    var name = Math.floor(Math.random() * 3);
     let imagedata = req.body.data.split(',')[1];
-    fs.writeFile('./client/img/test.png', imagedata, 'base64', function(err) {
+    fs.writeFile('./client/img/'+ name +'.png', imagedata, 'base64', function(err) {
       if (err) {
         throw err
         res.send(500)
@@ -16,7 +18,7 @@ module.exports = function(app) {
           'Content-Type': 'application/json',
           'Ocp-Apim-Subscription-Key': '5eed168a75df4ff988eb3a529da5f646'
         },
-        body: '{"url": "https://mangohacks2018-jjm15c.c9users.io/img/test.png"}'
+        body: '{"url": "https://mangohacks2018-jjm15c.c9users.io/img/'+ name +'.png"}'
 
       };
 
