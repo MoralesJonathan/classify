@@ -28,7 +28,7 @@ keys = require('./keys.json')
 mongoClient = require('mongodb').MongoClient;
 objectID = require('mongodb').ObjectID;
 const server = http.createServer(app)
-const io = socketio.listen(server);
+io = socketio.listen(server);
 
 //db connections
 session = require('express-session');
@@ -54,76 +54,40 @@ app.use(session({
   saveUninitialized: false
 }))
 
-const messages = [];
-const sockets = [];
+let rooms = [];
 
 api(app);
 views(app);
 
 io.on('connection', function(socket) {
-  messages.forEach(function(data) {
-    socket.emit('message', data);
-  });
-
-  sockets.push(socket);
-
-  socket.on('disconnect', function() {
-    sockets.splice(sockets.indexOf(socket), 1);
-    updateRoster();
-  });
-
-  socket.on('message', function(msg) {
-    const text = String(msg || '');
-
-    if (!text)
-      return;
-
-    socket.get('name', function(err, name) {
-      const data = {
-        name: name,
-        text: text
-      };
-
-      broadcast('message', data);
-      messages.push(data);
-    });
-  });
-
-  socket.on('identify', function(name) {
-    socket.set('name', String(name || 'Anonymous'), function(err) {
-      updateRoster();
-    });
-  });
-});
-
-function updateRoster() {
-  async.map(
-    sockets,
-    function(socket, callback) {
-      socket.get('name', callback);
-    },
-    function(err, names) {
-      broadcast('roster', names);
+  rooms.push(socket.id);
+  socket.on('join', (room) => {
+    if(rooms.indexOf(room) != -1 && socket.id != room){
+      socket.join(room);
+      socket.leave(socket.id);
+      socket.emit('roomJoinStatus', { data: true });
+      socket.emit('notifcation', { message: "Logged in!" });
+    } else {
+      socket.emit('roomJoinStatus', { data: false });
     }
-  );
-}
-
-function broadcast(event, data) {
-  sockets.forEach(function(socket) {
-    socket.emit(event, data);
+    })
+  socket.on('logout',function(room){
+    socket.leave(room)
+  })
+  socket.on('disconnect', function() {});
   });
-}
+
 
 server.listen(port, function() {
   console.log('Server is running! on port ' + port + ' and is running with a ' + environment + ' environment.');
 })
 
 
-app.get('/test', function (req,res){
+app.get('/test', function(req, res) {
   googleTranslate.translate('My name is Brandon', 'es', function(err, translation) {
-  res.send(translation.translatedText);
+    res.send(translation.translatedText);
 
-});
+  });
 })
 
 function toTitleCase(str) {

@@ -1,72 +1,42 @@
 var fixedTop = false;
 var transparent = true;
 var navbar_initialized = false;
-var xVal = 0;
+
+function sendNotif(msg) {
+    $.notify({
+        icon: "ti-announcement",
+        message: msg
+
+    }, {
+        element: '#notifications',
+        type: "success",
+        position: "relative",
+        timer: 0,
+        allow_dismiss: false,
+        newest_on_top: true,
+        delay: 0,
+        placement: {
+            from: "top",
+            align: "center"
+        },
+        spacing: 50,
+        template: '<div style="padding:10px 10px 10px 60px;" data-notify="container" class="col-xs-12  alert alert-{0}" role="alert">' +
+            '<span data-notify="icon"></span> ' +
+            '<span data-notify="title">{1}</span> ' +
+            '<span data-notify="message">{2}</span>' +
+            '<div class="progress" data-notify="progressbar">' +
+            '<div class="progress-bar progress-bar-{0}" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"></div>' +
+            '</div>' +
+            '<a href="{3}" target="{4}" data-notify="url"></a>' +
+            '</div>'
+    });
+}
+
 $(document).ready(function() {
-    const socket = io.connect();
-    socket.on('connect', () => {
-        id = socket.id;
-        $('#socketID').html(id)
-    });
-    socket.on('graphUpdate', function(data) {
-        var yVal = data.value
-        dps.push({
-            x: xVal,
-            y: yVal
-        });
-        xVal++;
-        if (dps.length > 15) {
-            dps.shift();
-        }
-        chart.render();
-    });
-    updateTimes()
-    var dps = [];
-    var chart = new CanvasJS.Chart("chartContainer", {
-        exportEnabled: false,
-        title: {
-            text: "Class Emotions",
-            fontFamily: "arial",
-            fontWeight: "lighter",
-            fontSize: 30,
-            padding: 15
-        },
-        axisY: {
-            includeZero: false,
-            gridColor: "#c9c9c9"
-        },
-        data: [{
-            type: "spline",
-            markerSize: 0,
-            dataPoints: dps
-        }]
-    });
-
-    // var xVal = 0;
-    // var yVal = 0;
-    // var updateInterval = 5000;
-    // var dataLength = 15
-
-    // var updateChart = function(count) {
-    //     count = count || 1;
-    //     // count is number of times loop runs to generate random dataPoints.
-    //     for (var j = 0; j < count; j++) {
-    //         yVal = Math.random() < 0.5 ? -1 : 1;
-    //         dps.push({
-    //             x: xVal,
-    //             y: yVal
-    //         });
-    //         xVal++;
-    //     }
-    //     if (dps.length > dataLength) {
-    //         dps.shift();
-    //     }
-    //     chart.render();
-    // };
-
-    // updateChart(dataLength);
-    // setInterval(function() { updateChart() }, updateInterval);
-
+    $('#myModal').modal({
+        backdrop: false,
+        keyboard: false
+    })
     window_width = $(window).width();
 
     // Init navigation toggle for small screens
@@ -77,6 +47,88 @@ $(document).ready(function() {
     //  Activate the tooltips
     $('[rel="tooltip"]').tooltip();
 
+    $('#login').click(function() {
+        socket.emit('join', $('#socketID').val(), $('#studentID').val(), $('#lang').val());
+    })
+
+    socket.on('roomJoinStatus', function(auth) {
+        if (auth.data) {
+            $('#myModal').modal('hide')
+            startCapture();
+        }
+        else {
+            $('#error').html("Unknown room. Please try again.")
+        }
+    });
+
+    socket.on('notifcation', function(data) {
+        sendNotif(data.message)
+    });
+
+    $("#logout").click(function() {
+        // socket.emit('logout')
+        location.reload();
+    })
+
+    function camera() {
+        Webcam.set({
+            // live preview size
+            width: 1,
+            height: 1,
+
+            // device capture size
+            dest_width: 640,
+            dest_height: 480,
+
+            // final cropped size
+            crop_width: 600,
+            crop_height: 400,
+
+            // format and quality
+            image_format: 'jpeg',
+            jpeg_quality: 100,
+
+        });
+        Webcam.attach('#my_camera');
+    }
+
+    camera();
+
+    function preview_snapshot() {
+        // freeze camera so user can preview current frame
+        Webcam.freeze();
+    }
+
+    function save_photo() {
+        // actually snap photo (from preview freeze) and display it
+        Webcam.snap(function(data_uri) {
+            console.log("snapped image")
+            $.post('api/image', {
+                data: data_uri
+            }, function(response, err) {
+                if (response) {
+                    console.log("OK!");
+                }
+                else {
+                    console.log(err)
+                }
+            })
+            // shut down camera, stop capturing
+            Webcam.reset();
+        });
+    }
+
+    function startCapture() {
+        console.log("At startCapture")
+        setInterval(function() {
+            preview_snapshot();
+            save_photo();
+            Webcam.unfreeze();
+            camera();
+            console.log("hello");
+        }, 10000);
+
+    }
 });
 
 // activate collapse right menu when the windows is resized

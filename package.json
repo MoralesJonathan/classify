@@ -17,6 +17,7 @@
     "mongodb": "^3.0.2",
     "nodemon": "^1.14.12",
     "request": "^2.83.0",
-    "socket.io": "^2.0.4"
+    "socket.io": "^2.0.4",
+    "vui-ad-hoc-alexa-recognizer": "^1.3.930"
   }
 }

@@ -20,6 +20,10 @@ var appDir = path.dirname(require.main.filename);
         res.render("studentDash.handlebars");
     });
     
+    app.get('/qa', function(req, res) {
+        res.render("qa.handlebars");
+    });
+    
     app.get('/home', function(req, res) {
         let userSession = req.session;
         if (!userSession.user) {

@@ -1151,9 +1151,16 @@ textarea.form-control {
   z-index: 3; }
   .navbar .navbar-brand {
     font-weight: 600;
-    margin: 5px 0px;
+    margin: 5px 0px 0px 0px;
     padding: 20px 15px;
     font-size: 20px; }
+  .navbar .navbar-subBrand {
+  font-weight: 300;
+  margin: 5px 0px;
+  padding: 0 15px;
+  font-size: 16px;
+  display:block;
+  }
   .navbar .navbar-nav > li > a {
     line-height: 1.42857;
     margin: 15px 0px;

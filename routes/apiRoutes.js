@@ -19,11 +19,35 @@ module.exports = function(app) {
         
       };
       
-    request(options, function(error, response, body){
-      if(!error){
-        console.log(body)
-        res.send(body);
+    request(options, function(error, response, body) {
+    if(body != undefined){
+    let data =body;
+    let pull=(JSON.parse(data));
+    let scores=pull[0].scores;
+    
+    let emotions = {
+      "anger": -1,
+      "contempt": 1,
+      "disgust": 1,
+      "fear": 1,
+      "happiness":1,
+      "neutral":0,
+      "sadness":-1,
+      "surprise":1
+    };
+        let finalScore=0;
+        let counter=0;
+        for (var key in scores) {
+          if (scores.hasOwnProperty(key)) {
+              if(scores[key]>.2){
+              let curVal=emotions[key];
+              finalScore+=(curVal*scores[key]);
+              counter++;
+          }
       }
+        }
+        io.sockets.emit('graphUpdate', {"value":finalScore})
+    }
       else{
         console.log(error);
         res.send(error);
