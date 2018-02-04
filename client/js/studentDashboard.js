@@ -314,3 +314,7 @@ function updateTimes() {
     }, 60000);
 
 }
+
+$('#playText').click(function() {
+    responsiveVoice.speak($('#mainText').text())
+})
